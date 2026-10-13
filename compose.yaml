@@ -1,0 +1,6 @@
+services:
+  diagnostic:
+    build: .
+    image: diagnostic-tool
+    stdin_open: true
+    tty: true
