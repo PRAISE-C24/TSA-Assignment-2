@@ -1,0 +1,7 @@
+.git
+.gitignore
+*.log
+logs/
+tmp/
+.DS_Store
+compose.yaml
