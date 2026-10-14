@@ -1,153 +1,245 @@
 # TS Academy Assignment – Assignment 2
 
-Diagnostic CLI Tool
+## Diagnostic CLI Tool
 
 A lightweight, containerized Linux diagnostic utility built with Bash and Docker. This tool provides essential system diagnostics, network connectivity checks, and disk usage information through a simple command-line interface.
 
-Features
-System Information (system) — Displays Linux system information, uptime, kernel version, OS distribution, and memory usage.
-Network Connectivity (network <host>) — Checks network connectivity to a target host using ping.
-Disk Usage (disk) — Displays current disk space usage.
-Help (help) — Displays available commands and usage instructions.
-Docker Support — Runs diagnostics inside a containerized environment.
-Exit Codes — Returns specific exit codes to indicate success, operational failures, or invalid commands.
-Prerequisites
+## Features
 
-Ensure the following tools are installed:
+- **System Information (`system`)** — Displays Linux system information, including uptime, kernel version, operating system distribution, and memory usage.
+- **Network Connectivity (`network <host>`)** — Checks network connectivity to a specified hostname or IP address using `ping`.
+- **Disk Usage (`disk`)** — Displays current filesystem and disk space utilization.
+- **Help (`help`)** — Displays available commands and usage instructions.
+- **Docker Support** — Runs diagnostic commands inside a containerized environment.
+- **Exit Codes** — Uses specific exit codes to indicate successful execution, operational failures, and invalid commands or arguments.
+- **Automated Testing** — Includes a test script to validate command behavior and exit codes.
 
-Linux environment or a compatible Bash environment
-Bash shell
-Docker
-Docker Compose (optional, if using docker compose)
-ping utility, available in the execution environment
-Project Structure
+## Prerequisites
+
+Ensure the following tools are available:
+
+- Linux environment or a compatible Bash environment
+- Bash shell
+- Docker Engine
+- Docker Compose (optional, if using Compose)
+- `ping` utility, available inside the execution environment where network checks run
+
+## Project Structure
+
+```text
 .
 ├── app/
-│   └── diagnostic.sh
-├── test.sh
-├── Dockerfile
-├── docker-compose.yml
-└── README.md
+│   └── diagnostic.sh       # Main diagnostic CLI application
+├── test.sh                 # Automated test suite
+├── Dockerfile              # Docker image definition
+├── docker-compose.yml      # Optional Docker Compose configuration
+└── README.md               # Project documentation
+```
 
+**Note:** This structure assumes your repository contains the files listed above.
 
-Note: This structure assumes your project contains the files listed above.
+## Getting Started
 
-Usage
-1. Run Locally
+### 1. Clone or Download the Repository
 
-First, make the diagnostic script executable:
+Clone the repository and navigate to the project directory:
 
-chmod +x app/diagnostic.sh
+```bash
+git clone <your-repository-url>
+cd <your-repository-directory>
+```
 
-Available Commands
+Replace the placeholders with your actual repository URL and directory name.
 
-Display help
+Alternatively, download the project files and navigate to the extracted directory.
 
+### 2. Make the Scripts Executable
+
+Run the following command from the project root:
+
+```bash
+chmod +x app/diagnostic.sh test.sh
+```
+
+## Usage
+
+### 1. Run Locally
+
+The diagnostic utility supports the following commands.
+
+#### Display Help
+
+```bash
 ./app/diagnostic.sh help
+```
 
+Displays available commands and usage instructions.
 
-View system information
+#### View System Information
 
+```bash
 ./app/diagnostic.sh system
+```
 
+Displays system information, including uptime, kernel version, operating system distribution, and memory usage.
 
-View disk usage
+#### View Disk Usage
 
+```bash
 ./app/diagnostic.sh disk
+```
 
+Displays current disk space utilization.
 
-Check network connectivity
+#### Check Network Connectivity
 
+```bash
 ./app/diagnostic.sh network 8.8.8.8
+```
 
+Replace `8.8.8.8` with the hostname or IP address you want to test.
 
-Replace 8.8.8.8 with the IP address or hostname you want to test.
+**Note:** A failed ping does not necessarily mean the destination is unreachable. Some hosts and networks block ICMP traffic.
 
-2. Build the Docker Image
+### 2. Build the Docker Image
 
-Build the Docker image from the project directory:
+From the project root, build the Docker image:
 
+```bash
 docker build -t diagnostic-tool .
+```
 
-3. Run Commands with Docker
+This creates a local image named `diagnostic-tool`, provided the Dockerfile builds successfully.
 
-Run system diagnostics
+### 3. Run Commands with Docker
 
+Docker allows you to execute diagnostic commands inside the container without installing the application directly into your host environment.
+
+#### Run System Diagnostics
+
+```bash
 docker run --rm diagnostic-tool system
+```
 
+#### Check Disk Usage
 
-Check disk usage
-
+```bash
 docker run --rm diagnostic-tool disk
+```
 
+#### Test Network Connectivity
 
-Test network connectivity
-
+```bash
 docker run --rm diagnostic-tool network 1.1.1.1
+```
 
+#### Display Help
 
-Display help
-
+```bash
 docker run --rm diagnostic-tool help
+```
 
+The `--rm` option automatically removes the container after the command finishes. The Docker image remains available for subsequent runs.
 
-The --rm flag automatically removes the container after the command finishes.
+**Important:** Network connectivity and disk usage are evaluated from the container's execution environment. Container networking and filesystem visibility may differ from the host system.
 
-4. Run Commands with Docker Compose
+### 4. Run Commands with Docker Compose
 
-If your project includes a configured docker-compose.yml file, you can run the diagnostics using Docker Compose.
+If your repository contains a correctly configured `docker-compose.yml` file, you can use Docker Compose to run the application.
 
-Run system diagnostics
+#### Run System Diagnostics
 
+```bash
 docker compose run --rm diagnostic system
+```
 
+#### Check Disk Usage
 
-Check disk usage
-
+```bash
 docker compose run --rm diagnostic disk
+```
 
+#### Check Network Connectivity
 
-Replace diagnostic with the service name defined in your Compose configuration if it differs.
+```bash
+docker compose run --rm diagnostic network 1.1.1.1
+```
 
-Exit Codes
+#### Display Help
 
-The tool returns the following exit codes based on execution status:
+```bash
+docker compose run --rm diagnostic help
+```
 
-Exit Code	Description
-0	Success
-1	Operational or runtime failure, such as an unreachable host
-2	Invalid command or missing required argument
+In these examples, `diagnostic` is the Compose service name. Replace it if your configuration defines a different service name.
 
-These exit codes can be used in shell scripts, automated tests, and CI/CD pipelines to determine whether a diagnostic operation succeeded.
+The `run` command creates a one-off container for the specified service, while `--rm` removes that container when it exits.
 
-Testing
+## Exit Codes
 
-Run the test suite to verify the script's behavior and exit codes.
+The application uses exit codes to communicate the outcome of each command.
 
-Make the test script executable:
+| Exit Code | Description |
+|---|---|
+| `0` | Command executed successfully. |
+| `1` | Operational or runtime failure, such as an unsuccessful network check. |
+| `2` | Invalid command or missing required argument. |
 
+These exit codes make the utility suitable for shell automation, automated tests, and CI/CD pipelines.
+
+For example, you can inspect the exit status of a command with:
+
+```bash
+./app/diagnostic.sh disk
+echo $?
+```
+
+The `echo $?` command displays the exit code of the most recently executed command.
+
+## Testing
+
+The project includes a test script for verifying application behavior and exit codes.
+
+### 1. Make the Test Script Executable
+
+```bash
 chmod +x test.sh
+```
 
+### 2. Run the Test Suite
 
-Run the tests:
-
+```bash
 ./test.sh
+```
 
+Review the test output to identify failed checks or unexpected behavior.
 
-Review the test output to confirm that the expected commands and exit codes behave correctly.
+Run the tests after making changes to ensure that the application's commands and error handling continue to behave as expected.
 
-Technologies Used
-Bash — Implements the diagnostic commands and CLI logic.
-Linux — Provides the system environment and diagnostic utilities.
-Docker — Packages and runs the tool in a container.
-Docker Compose — Simplifies running the container through a configured service.
-Shell scripting tests — Validate command behavior and exit codes.
-Use Cases
-Quick Linux system diagnostics
-Basic network connectivity troubleshooting
-Disk space monitoring
-Learning Bash scripting and command-line interface design
-Practicing Docker containerization and automated testing
-License
+## Technologies Used
 
-No license has been specified yet. Add a license if you intend to distribute or share this project publicly.
+- **Bash:** Implements command-line operations and diagnostic logic.
+- **Linux:** Provides the operating system environment and diagnostic utilities.
+- **Docker:** Packages the application into a container image.
+- **Docker Compose:** Simplifies container execution through a service configuration.
+- **Shell Testing:** Validates command behavior and exit codes.
+
+## Use Cases
+
+- Quick Linux system diagnostics
+- Basic network connectivity troubleshooting
+- Disk space monitoring
+- Learning Bash scripting and CLI design
+- Practicing Docker image creation and container execution
+- Understanding exit-code handling and automated testing
+- Building foundational DevOps skills
+
+## License
+
+No license has been specified. Add a `LICENSE` file if you intend to distribute or share this project publicly.
+
+---
+
+**Assignment:** TS Academy – Assignment 2  
+**Project:** Diagnostic CLI Tool  
+**Purpose:** Build practical Linux and DevOps skills through Bash-based diagnostics, Docker containerization, and automated testing.
